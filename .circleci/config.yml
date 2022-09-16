@@ -319,7 +319,7 @@ jobs:
       - slack/notify:
           event: pass
           channel: slack-notification
-          template: success_ taged_deployment_1    
+          template: success_ tagged_deployment_1    
 
 workflows:
   default:
