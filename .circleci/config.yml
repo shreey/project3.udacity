@@ -232,24 +232,33 @@ jobs:
       - destroy_environment:
           Workflow_ID: ${CIRCLE_WORKFLOW_ID:0:7}
 
-#   configure-infrastructure:
-#     docker:
-#       # Docker image here that supports Ansible
-#     steps:
-#       # Checkout code from git
-#       # Add ssh keys with fingerprint
-#       # attach workspace
-#       - run:
-#           name: Install dependencies
-#           command: |
-#             # Your code here
-#             exit 1
-#       - run:
-#           name: Configure server
-#           command: |
-#             # Your code here
-#             exit 1
-#       # Here's where you will add some code to rollback on failure      
+  configure-infrastructure:
+    docker:
+      - image: cimg/node:13.8.0
+    steps:
+      - checkout
+      - add_ssh_keys:
+          fingerprints: ["dc:f6:02:6b:cf:a1:15:31:0a:24:b3:12:be:d4:bd:c0"]
+      - attach_workspace:
+          at: ~/
+      - run:
+          name: Install ansible.
+          command: |
+            apk add --update ansible
+      - run:
+          name: Install dependencies
+          command: |
+            apk add --update tar gzip ansible nodejs npm curl && \
+            pip install awscli
+      - run:
+          name: Configure server
+          command: |
+            cd .circleci/ansible && \
+            cat inventory.txt && \
+            ansible-playbook -i inventory.txt configure-server.yml
+      - destroy-environment:
+          workflow_id: ${CIRCLE_WORKFLOW_ID:0:17}   
+      # Here's where you will add some code to rollback on failure      
 
 #   run-migrations:
 #     docker:
@@ -398,8 +407,8 @@ workflows:
           filters:
             branches:
               only: [main]
-      # - configure-infrastructure:
-      #     requires: [deploy-infrastructure]
+      - configure-infrastructure:
+          requires: [deploy-infrastructure]
       # - run-migrations:
       #     requires: [configure-infrastructure]
       # - deploy-frontend:
