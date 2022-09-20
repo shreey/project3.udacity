@@ -7,12 +7,54 @@ orbs:
 
 
 commands:
-  notify-on-failiar:
+  install_nodejs:
+    description: Install Node.js 13
     steps:
-      - slack/notify:
-          event: fail
-          channel: slack-notification
-          template: basic_fail_1
+      - run:
+          name: Install Node.js 13
+          command: |
+            curl -fsSL https://deb.nodesource.com/setup_13.x | sudo -E bash -
+            sudo apt -y install nodejs
+            sudo npm install --global n
+            sudo n 13.8.0
+  install_awscli:
+    description: Install aws cli v2
+    steps:
+      - run: 
+          name: Install aws cli v2
+          command: |
+           curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+           unzip awscliv2.zip
+           sudo ./aws/install
+  install_ansible:
+    description: Install ansible
+    steps:
+      - run: 
+          name: Install ansible
+          command: |
+           sudo apt-get update
+            sudo apt-get install -y ansible
+            ansible --version
+  destroy_environment:
+    description: Destroy back-end and front-end cloudformation stacks given a workflow ID.
+    parameters:
+      Workflow_ID:
+        type: string
+        default: ${CIRCLE_WorkFlow_ID:0:7}
+    steps:
+      - run:
+          name: Destroy environments
+          when: on_fail
+          command: |
+           aws s3 rm s3://udapeople-<<parameters.Workflow_ID>> --recursive || echo "failed to remove the s3 files"
+           aws cloudformation delete-stack --stack-name "udapeople-frontend-${CIRCLE_WorkFlow_ID:0:7}" || echo "failed to remove the frontend stack"
+           aws cloudformation delete-stack --stack-name "udapeople-backend-${CIRCLE_WorkFlow_ID:0:7}" || echo "failed to remove the backend stack"
+#   notify-on-failiar:
+#     steps:
+#       - slack/notify:
+#           event: fail
+#           channel: slack-notification
+#           template: basic_fail_1
   
 #   destroy-environment:
 #     description: Destroy back-end and front-end cloudformation stacks given a workflow ID.
@@ -63,7 +105,7 @@ jobs:
       - save_cache:
           paths: [frontend/node_modules]
           key: frontend-build
-      - notify-on-failiar
+      # - notify-on-failiar
   build-backend:
     docker:
       - image: cimg/node:13.8.0
@@ -80,7 +122,7 @@ jobs:
       - save_cache:
           paths: [backend/node_modules]
           key: backend-build
-      - notify-on-failiar
+      # - notify-on-failiar
 
   test-frontend:
     docker:
@@ -95,7 +137,7 @@ jobs:
             cd frontend
             npm install
             npm test
-      - notify-on-failiar
+      # - notify-on-failiar
 
                 
   test-backend:
@@ -111,7 +153,7 @@ jobs:
             cd backend
             npm install
             npm test
-      - notify-on-failiar
+      # - notify-on-failiar
 
             
   scan-frontend:
@@ -128,7 +170,7 @@ jobs:
             npm install
             npm audit fix --force --audit-level=critical
             npm audit --audit-level=critical
-      - notify-on-failiar
+      # - notify-on-failiar
 
   scan-backend:
     docker:
@@ -145,42 +187,50 @@ jobs:
             npm audit fix --force --audit-level=critical
             npm audit fix --force --audit-level=critical
             npm audit --audit-level=critical
-      - notify-on-failiar
+      # - notify-on-failiar
 
 
-#   deploy-infrastructure:
-#     docker:
-#       # Docker image here that supports AWS CLI
-#     steps:
-#       # Checkout code from git
-#       - run:
-#           name: Ensure back-end infrastructure exists
-#           command: |
-#             aws cloudformation deploy \
-#               --template-file .circleci/files/backend.yml \
-#               #--tags project=your-tag \
-#               # --stack-name "your back-end stack name with workflow id" \
-#               # --parameter-overrides ID="your workflow id"  
-#               exit 1
-#       - run:
-#           name: Ensure front-end infrastructure exist
-#           command: |
-#             aws cloudformation deploy \
-#               --template-file .circleci/files/frontend.yml \
-#               #--tags project=your-tag \
-#               # --stack-name "your front-end stack name with workflow id" \
-#               # --parameter-overrides ID="your workflow id"  
-#               exit 1
-#       - run:
-#           name: Add back-end ip to ansible inventory
-#           command: |
-#             # Your code here
-#             exit 1
-#       - persist_to_workspace:
-#           root: ~/
-#           paths:
-#             - project/.circleci/ansible/inventory.txt
-#       # Here's where you will add some code to rollback on failure      
+  deploy-infrastructure:
+    docker:
+      - image: amazon/aws-cli
+      # Docker image here that supports AWS CLI
+    steps:
+      # Checkout code from git
+      - checkout
+      - run:
+          name: install dependencies
+          command: |
+            yum install -y tar gzip
+      - run:
+          name: Ensure back-end infrastructure exists
+          command: |
+            aws cloudformation deploy \
+              --template-file .circleci/files/backend.yml \
+              --stack-name "udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}" \
+              --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}"  \
+              --tags project=udapeople 
+      - run:
+          name: Ensure front-end infrastructure exist
+          command: |
+            aws cloudformation deploy \
+              --template-file .circleci/files/frontend.yml \
+              --tags project=udapeople \
+              --stack-name "udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7}"" \
+              --parameter-overrides ID="{CIRCLE_WORKFLOW_ID:0:7}"  
+      - run:
+          name: Add back-end ip to ansible inventory
+          command: |
+            BACKEND_IP=$(aws ec2 describe-instances \
+                --filters "Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0:7}" \
+                --query 'Reservations[*].Instances[*].PublicIpAddress' --output text)
+            echo  $BACKEND_IP >> .circleci/ansible/inventory.txt
+            cat .circleci/ansible/inventory.txt
+      - persist_to_workspace:
+          root: ~/
+          paths:
+            - project/.circleci/ansible/inventory.txt
+      - destroy-environment:
+          Workflow_ID: ${CIRCLE_WORKFLOW_ID:0:7}
 
 #   configure-infrastructure:
 #     docker:
@@ -312,14 +362,14 @@ jobs:
 #             then
 #               # your code here
 #             fi
-  notify-on-success:
-    docker:
-      - image: cimg/base
-    steps:  
-      - slack/notify:
-          event: pass
-          channel: slack-notification
-          template: success_tagged_deploy_1   
+  # notify-on-success:
+  #   docker:
+  #     - image: cimg/base
+  #   steps:  
+  #     - slack/notify:
+  #         event: pass
+  #         channel: slack-notification
+  #         template: success_tagged_deploy_1   
 
 workflows:
   default:
@@ -334,20 +384,20 @@ workflows:
           requires: [build-backend]
       - scan-frontend:
           requires: [build-frontend]
-      - notify-on-success:
-          requires:
-          - build-frontend
-          - build-backend
-          - test-frontend
-          - test-backend
-          - scan-backend
-          - scan-frontend
+      # - notify-on-success:
+      #     requires:
+      #     - build-frontend
+      #     - build-backend
+      #     - test-frontend
+      #     - test-backend
+      #     - scan-backend
+      #     - scan-frontend
 
-      # - deploy-infrastructure:
-      #     requires: [test-frontend, test-backend, scan-frontend, scan-backend]
-      #     filters:
-      #       branches:
-      #         only: [test-feature-branch]
+      - deploy-infrastructure:
+          requires: [test-frontend, test-backend, scan-frontend, scan-backend]
+          filters:
+            branches:
+              only: [main]
       # - configure-infrastructure:
       #     requires: [deploy-infrastructure]
       # - run-migrations:
