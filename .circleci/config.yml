@@ -238,14 +238,17 @@ jobs:
     steps:
       - checkout
       - add_ssh_keys:
-          fingerprints: ["dc:f6:02:6b:cf:a1:15:31:0a:24:b3:12:be:d4:bd:c0"]
+          fingerprints: ["d1:d0:4c:4f:7e:fb:3c:5e:a5:85:3d:34:0d:de:f0:05"]
       - attach_workspace:
           at: ~/
       - run:
           name: Install dependencies
           command: |
-            cd ~/project/.circleci/ansible
+            apk add curl
+            apk add --upgrade bash
             apk add --update ansible
+            apk add openssh-client
+            pip3 install awscli
       - run:
           name: configure-server
           command: |
@@ -417,3 +420,6 @@ workflows:
       #     requires: [smoke-test]
       # - cleanup:
       #     requires: [cloudfront-update]
+
+
+      # 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
