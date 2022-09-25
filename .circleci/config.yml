@@ -198,10 +198,10 @@ jobs:
       # Checkout code from git
       - checkout
       - install_awscli
-      - run:
-          name: install dependencies
-          command: |
-            yum install -y tar gzip
+      # - run:
+      #      name: install dependencies
+      #      command: |
+      #        yum install -y tar gzip
       - run:
           name: Ensure back-end infrastructure exists
           command: |
@@ -417,4 +417,4 @@ workflows:
       #     requires: [cloudfront-update]
 
 
-      # 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
+      # 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
