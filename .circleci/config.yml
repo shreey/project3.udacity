@@ -7,34 +7,34 @@ orbs:
 
 
 commands:
-  install_nodejs:
-    description: Install Node.js 13
+  install_awscli:
+    description: Install AWS CLI v2
     steps:
       - run:
-          name: Install Node.js 13
+          name: Install AWS CLI v2
           command: |
-            curl -fsSL https://deb.nodesource.com/setup_13.x | sudo -E bash -
-            sudo apt -y install nodejs
-            sudo npm install --global n
-            sudo n 13.8.0
-  install_awscli:
-    description: Install aws cli v2
+            curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+            unzip awscliv2.zip
+            sudo ./aws/install
+  install_ansible:
+    description: Install Ansible
     steps:
-      - run: 
-          name: Install aws cli v2
+      - run:
+          name: Install Ansible
           command: |
-           curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-           unzip awscliv2.zip
-           ./aws/install
-  # install_ansible:
-  #   description: Install ansible
-  #   steps:
-  #     - run: 
-  #         name: Install ansible
-  #         command: |
-  #           apt-get update
-  #           apt-get install -y ansible
-  #           ansible --version
+            sudo apt update
+            sudo apt install software-properties-common
+            sudo add-apt-repository --yes --update ppa:ansible/ansible
+            sudo apt install ansible -y
+  install_nodejs:
+    description: Install Node.js 13.8.0
+    steps:
+      - run:
+          name: Install Node.js 13.8.0
+          command: |
+            # Install Node.js LTS version as our base Node.js version
+            curl -fsSL https://deb.nodesource.com/setup_lts.x | sudo -E bash -
+            sudo apt install -y nodejs
   destroy_environment:
     description: Destroy back-end and front-end cloudformation stacks given a workflow ID.
     parameters:
@@ -192,11 +192,12 @@ jobs:
 
   deploy-infrastructure:
     docker:
-      - image: amazon/aws-cli
+      - image: cimg/base:stable
       # Docker image here that supports AWS CLI
     steps:
       # Checkout code from git
       - checkout
+      - install_awscli
       - run:
           name: install dependencies
           command: |
@@ -234,21 +235,15 @@ jobs:
 
   configure-infrastructure:
     docker:
-      - image: python:3.9.1-alpine3.12
+      - image: cimg/base:stable
     steps:
       - checkout
+      - install_awscli
+      - install_ansible
       - add_ssh_keys:
           fingerprints: ["d1:d0:4c:4f:7e:fb:3c:5e:a5:85:3d:34:0d:de:f0:05"]
       - attach_workspace:
           at: ~/
-      - run:
-          name: Install dependencies
-          command: |
-            apk add curl
-            apk add --upgrade bash
-            apk add --update ansible
-            apk add openssh-client
-            pip3 install awscli
       - run:
           name: configure-server
           command: |
