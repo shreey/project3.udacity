@@ -312,90 +312,44 @@ jobs:
       - revert-migrations
   deploy-backend:
     docker:
-      - image: cimg/base:stable                                 # Docker image python:3.7-alpine3.11 that supports Ansible
+      - image: cimg/base:stable
     steps:
-      - checkout    
+      - checkout
       - install_awscli
-      - install_nodejs                                       # Checkout code from git
-      - add_ssh_keys:                                      # Add ssh keys with fingerprint
-          fingerprints: ["d1:d0:4c:4f:7e:fb:3c:5e:a5:85:3d:34:0d:de:f0:05"]   # Add ssh keys with fingerprint
-      - run:
-          name: Install archiving dependencies # install the dependencies needed for your playbook Tar and Gzip are two of the most common utilities for archiving and compressing files
-          working_directory: ~/
-          command: |   
-                    apk add --update tar
-                    apk add --update gzip         
+      - install_ansible
+      - install_nodejs
+      - add_ssh_keys:
+          fingerprints: ["d1:d0:4c:4f:7e:fb:3c:5e:a5:85:3d:34:0d:de:f0:05"]
       - attach_workspace:
-          at: ~/   
-      - run:
-          name: Cheking node_modules directory
-          working_directory: /root/project
-          command: |
-                    ls -al
+          at: ~/
+      - restore_cache:
+          keys: [backend-deps]
       - run:
           name: Install dependencies
           command: |
-                    apk add --update ansible
-                    apk add --update curl 
-                    apk add --update rsync 
-                    apk add --update openssh
-                    apk add --update nodejs
-                    apk add --update npm 
-                    apk add --update unzip
-                    ansible --version
-                    pip3 install --upgrade pip
-                    pip3 install awscli
-                    aws --version 
+            cd backend
+            npm install
       - run:
-          name: add database values to env files to EC2
+          name: Package Backend
           command: |
-                    echo ENVIROMENT=production >> "backend/.env"
-                    echo NODE_ENV=production >> "backend/.env"
-                    echo VERSION=1 >> "backend/.env"
-                    echo BACKEND_PORT=3030 >> "backend/.env"
-                    echo TYPEORM_CONNECTION=postgres >> "backend/.env"
-                    echo TYPEORM_MIGRATIONS_DIR=./src/migrations >> "backend/.env"
-                    echo TYPEORM_ENTITIES=./src/modules/domain/**/*.entity.ts >> "backend/.env"
-                    echo TYPEORM_MIGRATIONS=./src/migrations/*.ts >> "backend/.env"
-                    echo TYPEORM_HOST=$TYPEORM_HOST >> "backend/.env"
-                    echo TYPEORM_PORT=$TYPEORM_PORT >> "backend/.env"
-                    echo TYPEORM_USERNAME=$TYPEORM_USERNAME >> "backend/.env"
-                    echo TYPEORM_PASSWORD=$TYPEORM_PASSWORD >> "backend/.env"
-                    echo TYPEORM_DATABASE=$TYPEORM_DATABASE >> "backend/.env" 
-                    echo LOGGLY_SUBDOMAIN=$yoursubdomain >> "backend/.env"  
-                    echo LOGGLY_TOKEN=$yourlogglytoken >> "backend/.env"
-                    echo LOGGLY_LEVEL=$info >> "backend/.env"
-                    echo GHOST_SUITE_ID=$GHOST_SUITE_ID >> "backend/.env"
-                    echo GHOST_API_KEY=$GHOST_API_KEY >> "backend/.env"
-                    cd backend
-                    pwd
-                    ls -la 
-                    cat .env
-           
-      - run:
-          name: Compress dist Files
-          working_directory: ~/project 
-          command: |
-                    cd backend
-                    ls -la
-                    cd ~/project/; tar -zcvf backend.tar.gz ./backend/ 
-                    pwd
-                    ls -la
+            cd backend
+            npm run build
+            tar -czf artifact.tar.gz dist/* package*
+            ls -lrt artifact.tar.gz
+            cd ..
+            cp backend/artifact.tar.gz .circleci/ansible/roles/deploy/tasks/
       - run:
           name: Deploy backend
-          no_output_timeout: 5m
-          command: |                                           # add to ENVIRONMENT ANSIBLE_HOST_KEY_CHECKING=False
-                    pwd
-                    ls -la
-                    cd .circleci/ansible 
-                    cat inventory.txt                                                                 
-                    ansible-playbook -i inventory.txt deploy-backend.yml
-# Managing host key checking     
-# https://docs.ansible.com/ansible/latest/user_guide/connection_details.html#host-key-checking 
-# https://bobcares.com/blog/ansible-disable-host-key-checking/                                            
-# Here's where you will add some code to rollback on failure                  
-      - revert-migrations
-      - destroy_environment        
+          command: |
+            export TYPEORM_MIGRATIONS_DIR=./migrations
+            export TYPEORM_ENTITIES=./modules/domain/**/*.entity{.ts,.js}
+            export TYPEORM_MIGRATIONS=./migrations/*.ts
+            cd .circleci/ansible
+            cat inventory.txt
+            ansible-playbook -i inventory.txt deploy-backend.yml
+            
+      - destroy_environment
+      - revert-migrations 
 #   smoke-test:
 #     docker:
 #       # Lightweight Docker image 
