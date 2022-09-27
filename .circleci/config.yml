@@ -318,7 +318,7 @@ jobs:
       - install_awscli
       - install_nodejs                                       # Checkout code from git
       - add_ssh_keys:                                      # Add ssh keys with fingerprint
-          fingerprints: ["50:59:e2:92:0f:81:91:1c:c8:fa:3e:ba:d3:ac:4a:0b"]   # Add ssh keys with fingerprint
+          fingerprints: ["d1:d0:4c:4f:7e:fb:3c:5e:a5:85:3d:34:0d:de:f0:05"]   # Add ssh keys with fingerprint
       - run:
           name: Install archiving dependencies # install the dependencies needed for your playbook Tar and Gzip are two of the most common utilities for archiving and compressing files
           working_directory: ~/
@@ -395,7 +395,7 @@ jobs:
 # https://bobcares.com/blog/ansible-disable-host-key-checking/                                            
 # Here's where you will add some code to rollback on failure                  
       - revert-migrations
-      - destroy-environment        
+      - destroy_environment        
 #   smoke-test:
 #     docker:
 #       # Lightweight Docker image 
