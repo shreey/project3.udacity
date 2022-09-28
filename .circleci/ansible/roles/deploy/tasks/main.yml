@@ -1,35 +1,61 @@
-- name: "Creates backend app directory"
-  file:
-    path: /home/ubuntu/backend
+
+# ---
+# - name: Creates App directory
+#   file:
+#     path: ~/app
+#     state: directory
+    
+# - name: Upload app 
+#   copy:
+#     src: project/artifact.tar
+#     dest: "~/app"
+# - name: Install dependencies
+#   become: true
+#   shell: |
+#     curl -sL https://deb.nodesource.com/setup_13.x | sudo -E bash -
+#     apt-get install -y nodejs
+#     apt-get install gcc g++ make -y
+#     npm install -g npm
+#     npm install -g pm2
+#     cd /home/ubuntu/app
+#     tar xf /home/ubuntu/app/artifact.tar
+  
+# - name: Start backend
+#   shell:  |
+#     /usr/bin/pm2 start /home/ubuntu/app/dist/main.js --name backend -f
+#   environment:
+#     ENVIRONMENT: production
+#     NODE_ENV: production
+#     TYPEORM_CONNECTION: postgres
+#     TYPEORM_MIGRATIONS_DIR: ~/src/migrations
+#     TYPEORM_MIGRATIONS: ~/src/migrations/*.ts
+#     TYPEORM_ENTITIES: ~/src/modules/domain/**/*.entity.ts
+#     TYPEORM_HOST: database1.cjzl5qz3hd28.us-east-1.rds.amazonaws.com
+#     TYPEORM_PORT: "5432"
+#     TYPEORM_USERNAME: mamun 
+#     TYPEORM_PASSWORD: ma0902044
+#     TYPEORM_DATABASE: udacity
+
+- name: Create a directory if it does not exist
+  ansible.builtin.file:
+    path: ~/app 
     state: directory
+    mode: '0777'
 
-- copy:
-    src: ~/project/.circleci/ansible/roles/deploy/files/artifact.tar.gz
-    dest: /home/ubuntu/backend
+- name: Another symbolic mode example, adding some permissions and removing others
+  ansible.builtin.copy:
+    src: ~/project/artifact.tar.gz
+    dest: ~/app/artifact.tar.gz
 
-- name: "Unarchive backend files"
-  unarchive:
-    src: artifact.tar.gz
-    dest: /home/ubuntu/backend
+- name: Unarchive a file that is already on the remote machine
+  ansible.builtin.unarchive:
+    src: ~/app/artifact.tar.gz
+    dest: ~/app/
+    remote_src: yes
 
-- name: "Installing Node Dependencies"
+- name: run the backend
   shell: |
-    cd /home/ubuntu/backend
-    npm i
-- name: "Executing Node app with PM2"
-  shell: |
-    cd /home/ubuntu/backend/dist
-    pm2 stop default
-    pm2 start main.js
-  register: execute_node
-
-- name: print message
-  debug:
-    msg: "{{ execute_node.stdout_lines }}"
-
-- name: "Configure pm2 to start as service"
-  become: true
-  shell: |
-    sudo su -c "env PATH=$PATH:/usr/local/bin pm2 startup systemd -u ubuntu --hp /home/ubuntu"
-    pm2 save
-
+    cd ~/app/
+    sudo npm install 
+    sudo pm2 stop default
+    pm2 start npm -- start
