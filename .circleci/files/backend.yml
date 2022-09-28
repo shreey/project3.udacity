@@ -4,7 +4,7 @@ Description: >
     Project-3-Give-Your-Application-Auto-Deploy-Superpowers 
     deploy APP servers using CloudFormation
     using Ubuntu 20 Operating System with two vCPUs and 8GB of RAM and 25GB of disk space security groups
-     
+    
 # Create a service role for CodeDeploy
 #https://docs.amazonaws.cn/en_us/codedeploy/latest/userguide/getting-started-create-service-role.html#getting-started-create-service-role-console
 #https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-iam-role.html
@@ -129,7 +129,7 @@ Resources:
 # If you use another key pair name, you should change this value to match.
 # If this ami id is not available for you, you can find another (https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/finding-an-ami.html)
 # Ubuntu 18 or higher works fine
- Outputs:
+Outputs:
   WebServerSecGroup:
       Description: EC2 Security Group for App Instances
       Value: !Ref 'WebServerSecGroup'
@@ -142,6 +142,5 @@ Resources:
       Description: An Elastic IP address is for use either in the EC2-Classic platform 
       Value: !Ref 'UdaPeopleElasticIP'  
 
-  Version:
-      Description: AWSTemplateFormatVersion "2010-09-09"
-      Value: "2010-09-09"
+
+      
