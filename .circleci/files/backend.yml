@@ -129,18 +129,18 @@ Resources:
 # If you use another key pair name, you should change this value to match.
 # If this ami id is not available for you, you can find another (https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/finding-an-ami.html)
 # Ubuntu 18 or higher works fine
-Outputs:
-  WebServerSecGroup:
-      Description: EC2 Security Group for App Instances
-      Value: !Ref 'WebServerSecGroup'
+# Outputs:
+#   WebServerSecGroup:
+#       Description: EC2 Security Group for App Instances
+#       Value: !Ref 'WebServerSecGroup'
 
-  WebAppServerInstance:
-      Description: App Server Instance
-      Value: !Ref 'WebAppServerInstance'
+#   WebAppServerInstance:
+#       Description: App Server Instance
+#       Value: !Ref 'WebAppServerInstance'
 
-  UdaPeopleElasticIP:
-      Description: An Elastic IP address is for use either in the EC2-Classic platform 
-      Value: !Ref 'UdaPeopleElasticIP'  
+#   UdaPeopleElasticIP:
+#       Description: An Elastic IP address is for use either in the EC2-Classic platform 
+#       Value: !Ref 'UdaPeopleElasticIP'  
 
 
       
