@@ -1,36 +1,26 @@
 ---
   - name: "Creates backend app directory"
     file:
-      path: /home/backed-app
+      path: ~/backed-app
       state: directory
 
   - name: "Unarchive backend files"
     unarchive:
-      src: "files/artifact.tar.gz"
-      dest: "/home/backed-app"
+      src: artifact.tar.gz
+      dest: ~/backed-app
 
   - name: "Installing Node Dependencies"
     shell: |
-      cd /home/backed-app
-      npm install
+      cd ~/backed-app
+      npm i
   
   - name: "Executing Node app with PM2"
     shell: |
-      cd /home/backed-app/dist
+      cd ~/backed-app/dist
       pm2 start main.js
-    environment:
-      NODE_ENV: production
-      VERSION: "1"
-      TYPEORM_CONNECTION: "{{ lookup('env', 'TYPEORM_CONNECTION')}}"
-      TYPEORM_ENTITIES: "{{ lookup('env', 'TYPEORM_ENTITIES')}}"
-      TYPEORM_HOST: "{{ lookup('env', 'TYPEORM_HOST')}}"
-      TYPEORM_PORT: 5432
-      TYPEORM_USERNAME: "{{ lookup('env', 'postgres')}}"
-      TYPEORM_PASSWORD: "{{ lookup('env', 'postgres')}}"
-      TYPEORM_DATABASE: "{{ lookup('env', 'postgres')}}"
-      TYPEORM_MIGRATIONS: "{{ lookup('env', 'TYPEORM_MIGRATIONS')}}"
-      TYPEORM_MIGRATIONS_DIR: "{{ lookup('env', 'TYPEORM_MIGRATIONS_DIR')}}"
+
     register: execute_node
+
 
   - name: print message
     debug:
