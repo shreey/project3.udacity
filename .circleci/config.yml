@@ -312,60 +312,42 @@ jobs:
       - revert-migrations
   deploy-backend:
     docker:
-      - image: python:3.7.13-alpine3.16
+      - image: cimg/base:stable
     steps:
-      - checkout 
+      - checkout
+      - install_awscli
+      - install_ansible
+      - install_nodejs
       - add_ssh_keys:
-          fingerprints: ["8c:07:8e:49:57:54:f3:d4:94:23:74:ed:97:5a:d0:38"] # You can get this ID in the section where you registered the SSH K
-      - run:
-          name: Install tar utility
-          command: |
-            apk add tar gzip
-      
+          fingerprints: ["23:24:49:13:1b:30:35:ca:53:53:a7:a6:c3:44:ac:35"]
       - attach_workspace:
-            at: workspace # path
-
+          at: ~/
+      - restore_cache:
+          keys: [build-backend]
       - run:
-          name: Install dependencies ansible,openssh,nodejs
+          name: Install dependencies
           command: |
-             apk add openssh-client
-             apk add ansible
-             apk add --update nodejs npm
-             node --version
-             npm --version 
-#Installation of aws cli inorder to destroy infrustruture if fail
-
-      - run: 
-          name: install awscli 
-          command: |
-            apk update && apk add --no-cache curl gcompat zip &&  \
-            curl -s https://awscli.amazonaws.com/awscli-exe-linux-x86_64-2.0.30.zip -o awscliv2.zip && \
-            unzip awscliv2.zip && ./aws/install
-            aws --version
-      - run:
-          name: deploy backend
-          command: |
-            tail -1 workspace/inventory.txt >> .circleci/ansible/inventory.txt
             cd backend
-            
-            echo TYPEORM_CONNECTION=$TYPEORM_CONNECTION >> .env
-            echo TYPEORM_ENTITIES=$TYPEORM_ENTITIES >> .env
-            echo TYPEORM_HOST=$TYPEORM_HOST >> .env
-            echo TYPEORM_DATABASE=$TYPEORM_DATABASE >> .env
-            echo TYPEORM_USERNAME=$TYPEORM_USERNAME >> .env
-            echo TYPEORM_PASSWORD=$TYPEORM_PASSWORD >> .env
-            echo TYPEORM_MIGRATIONS=./src/migrations/*.ts >> .env
-            echo TYPEORM_MIGRATIONS_DIR=$TYPEORM_MIGRATIONS_DIR >> .env
-            npm i
+            npm install
+      - run:
+          name: Package Backend
+          command: |
+            cd backend
             npm run build
+            tar -czvf artifact.tar.gz dist/* package*
             cd ..
-            tar -C backend -cvzf artifact.tar.gz .
+            cp backend/artifact.tar.gz ".circleci/ansible/roles/deploy/files"
+      - run:
+          name: Deploy backend
+          command: |
+            export TYPEORM_MIGRATIONS_DIR=./migrations
+            export TYPEORM_ENTITIES=./modules/domain/**/*.entity{.ts,.js}
+            export TYPEORM_MIGRATIONS=./migrations/*.ts
             cd .circleci/ansible
-            echo "contents of the inventory.txt ...."
             cat inventory.txt
-            export ANSIBLE_HOST_KEY_CHECKING=False
-            aws --version
-            ansible-playbook -i inventory.txt deploy-backend.yml -u ubuntu -c ssh
+            ansible-playbook -i inventory.txt deploy-backend.yml
+      - destroy_environment
+      - revert-migrations 
   # deploy-backend:
   #   docker:
   #     - image: cimg/base:stable
