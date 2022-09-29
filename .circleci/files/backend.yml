@@ -69,7 +69,7 @@ Resources:
             FromPort: 6514
             ToPort: 6514
             CidrIp: 0.0.0.0/0
-        SecurityGroupegress:
+        SecurityGroupEgress:
           - IpProtocol: tcp
             FromPort: 22
             ToPort: 22
