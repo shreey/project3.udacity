@@ -24,8 +24,6 @@ Resources:
           - Key: "Name"
             Value: !Sub Udapeople-EIP-${ID}
 
-                                              ################################### EC2 Web Server Sec Group ####################################
-
   WebServerSecGroup:
       Type: AWS::EC2::SecurityGroup
       Properties:
