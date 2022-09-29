@@ -9,7 +9,6 @@
   apt:
     autoremove: yes
 
-
 - name: "Add Node.js from Nodesource"
   become: true
   shell: |
