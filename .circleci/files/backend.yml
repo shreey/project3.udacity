@@ -14,6 +14,7 @@ Parameters:
     Type: String
 
 Resources:
+                                                     ################################### Elastic-IP ####################################
   UdaPeopleElasticIP:
       Type: AWS::EC2::EIP
       Properties:
@@ -22,6 +23,8 @@ Resources:
         Tags:
           - Key: "Name"
             Value: !Sub Udapeople-EIP-${ID}
+
+                                              ################################### EC2 Web Server Sec Group ####################################
 
   WebServerSecGroup:
       Type: AWS::EC2::SecurityGroup
@@ -69,12 +72,6 @@ Resources:
             FromPort: 6514
             ToPort: 6514
             CidrIp: 0.0.0.0/0
-        # SecurityGroupEgress:
-        #   - IpProtocol: tcp
-        #     FromPort: 22
-        #     ToPort: 22
-        #     CidrIp: 0.0.0.0/0
-        #                                               ################################### EC2 ####################################
 
   WebAppServerInstance:
       Type: AWS::EC2::Instance
@@ -82,7 +79,6 @@ Resources:
         UserData:
           Fn::Base64: !Sub |
             #!/bin/bash
-
             # update upgrade EC2
             sudo apt update -y
             sudo apt upgrade -y
