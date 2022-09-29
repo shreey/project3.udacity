@@ -9,12 +9,12 @@
   apt:
     autoremove: yes
 
-- name: "Install npm and nodejs"
+
+- name: "Add Node.js from Nodesource"
   become: true
-  apt:
-    name: ["npm", "nodejs"]
-    state: latest
-    update_cache: yes
+  shell: |
+    curl -sL https://deb.nodesource.com/setup_13.x | sudo -E bash -
+    sudo apt-get install -y nodejs
 
 - name: "Install pm2"
   become: true
