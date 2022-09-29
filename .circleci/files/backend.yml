@@ -123,7 +123,7 @@ Resources:
         KeyName: peaple
         Tags:
           - Key: Name
-            Value: !Sub udapeople-backend-${ID}
+            Value: !Sub backend-${ID}
           - Key: Project
             Value: Udapeople
 # If you use another key pair name, you should change this value to match.
