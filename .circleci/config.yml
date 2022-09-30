@@ -31,7 +31,8 @@ commands:
           name: Install Node.js 13
           command: |
             curl -fsSL https://deb.nodesource.com/setup_lts.x | sudo -E bash -
-            sudo apt install -y nodejs
+            sudo apt-get install -y nodejs
+            sudo apt-get install npm
             sudo npm install --global n
             sudo n 13.8.0 
   destroy_environment:
@@ -236,7 +237,7 @@ jobs:
       - install_awscli
       - install_ansible
       - add_ssh_keys:
-          fingerprints: ["6c:82:3f:f3:3e:2e:30:4b:65:88:c6:7e:72:01:fa:19"]
+          fingerprints: ["b1:24:8d:69:72:31:45:81:f4:8f:f2:36:a4:f7:61:4a"]
       - attach_workspace:
           at: ~/
       - run:
@@ -286,7 +287,7 @@ jobs:
       - install_ansible
       - install_nodejs
       - add_ssh_keys:
-          fingerprints: ["6c:82:3f:f3:3e:2e:30:4b:65:88:c6:7e:72:01:fa:19"]
+          fingerprints: ["b1:24:8d:69:72:31:45:81:f4:8f:f2:36:a4:f7:61:4a"]
       - attach_workspace:
           at: ~/
       - restore_cache:
