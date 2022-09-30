@@ -25,7 +25,7 @@ commands:
             sudo apt update
             sudo apt install software-properties-common
             sudo add-apt-repository --yes --update ppa:ansible/ansible
-            sudo apt install ansible -y
+            sudo apt install ansible -y -y
   install_nodejs:
     description: Install Node.js 13
     steps:
@@ -287,7 +287,7 @@ jobs:
       - checkout
       - install_awscli
       - install_ansible
-      - install_nodejs
+      # - install_nodejs
       - add_ssh_keys:
           fingerprints: ["6c:82:3f:f3:3e:2e:30:4b:65:88:c6:7e:72:01:fa:19"]
       - attach_workspace:
