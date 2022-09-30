@@ -281,7 +281,7 @@ jobs:
 
   deploy-backend:
     docker:
-      - image: cimg/node:16.13.2
+      - image: cimg/base:stable
     steps:
       - checkout
       - install_awscli
