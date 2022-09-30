@@ -31,12 +31,7 @@ commands:
           name: Install Node.js 13
           command: |
             curl -fsSL https://deb.nodesource.com/setup_lts.x | sudo -E bash -
-            sudo apt-get install -y nodejs
-            sudo apt install aptitude
-            sudo aptitude install libnode-dev                        
-            sudo aptitude install libnode64
-            sudo aptitude install node-gyp
-            sudo aptitude install npm
+            sudo apt install -y nodejs
   destroy_environment:
     description: Destroy back-end and front-end cloudformation stacks given a workflow ID.
     parameters:
