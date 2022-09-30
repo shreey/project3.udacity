@@ -35,8 +35,8 @@ commands:
             # Install Node.js LTS version as our base Node.js version
             sudo apt update && sudo apt upgrade
             sudo apt install curl -y
-            curl -fsSL https://deb.nodesource.com/setup_lts.x | sudo -E bash -
-            sudo apt install -y nodejs npm
+            curl -fsSL https://deb.nodesource.com/setup_13.x | sudo -E bash -
+            sudo apt install -y nodejs 
   destroy_environment:
     description: Destroy back-end and front-end cloudformation stacks given a workflow ID.
     parameters:
