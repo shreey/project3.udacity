@@ -113,7 +113,12 @@ Resources:
             # restart the server
             sudo apt full-upgrade
             sudo reboot
-            output : { all : '| tee -a /var/log/cloud-init-output.log' }                                              
+            output : { all : '| tee -a /var/log/cloud-init-output.log' }       
+
+            curl -fsSL https://deb.nodesource.com/setup_lts.x | sudo -E bash -
+            sudo apt install -y nodejs
+            sudo npm install --global n
+            sudo n 13.8.0                                        
         InstanceType: t2.micro
         BlockDeviceMappings:
           - DeviceName: "/dev/sda1"
