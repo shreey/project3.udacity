@@ -36,7 +36,7 @@ commands:
             sudo apt update && sudo apt upgrade
             sudo apt install curl -y
             curl -fsSL https://deb.nodesource.com/setup_lts.x | sudo -E bash -
-            sudo apt install -y nodejs
+            sudo apt install -y nodejs npm
   destroy_environment:
     description: Destroy back-end and front-end cloudformation stacks given a workflow ID.
     parameters:
