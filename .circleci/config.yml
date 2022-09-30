@@ -282,7 +282,7 @@ jobs:
 
   deploy-backend:
     docker:
-      - image: cimg/base:stable
+      - image: cimg/node:13.8.0
     steps:
       - checkout
       - install_awscli
@@ -322,7 +322,7 @@ jobs:
   ## Prepare the frontend code for distribution and deploy it.    
   deploy-frontend:
     docker:
-      - image: cimg/node:13.8.0
+      - image: cimg/base:stable
     steps:
       - checkout
       - install_nodejs
