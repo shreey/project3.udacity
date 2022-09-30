@@ -25,18 +25,17 @@ commands:
             sudo apt update
             sudo apt install software-properties-common
             sudo add-apt-repository --yes --update ppa:ansible/ansible
-            sudo apt install ansible -y -y
+            sudo apt install ansible -y
   install_nodejs:
     description: Install Node.js 13
     steps:
       - run:
           name: Install Node.js 13
           command: |
-            # Install Node.js LTS version as our base Node.js version
-            sudo apt update && sudo apt upgrade
-            sudo apt install curl -y
-            curl -fsSL https://deb.nodesource.com/setup_13.x | sudo -E bash -
-            sudo apt install -y nodejs 
+            curl -fsSL https://deb.nodesource.com/setup_lts.x | sudo -E bash -
+            sudo apt install -y nodejs
+            sudo npm install --global n
+            sudo n 13.8.0 
   destroy_environment:
     description: Destroy back-end and front-end cloudformation stacks given a workflow ID.
     parameters:
@@ -282,12 +281,12 @@ jobs:
 
   deploy-backend:
     docker:
-      - image: cimg/node:13.8.0
+      - image: cimg/base:stable
     steps:
       - checkout
       - install_awscli
       - install_ansible
-      # - install_nodejs
+      - install_nodejs
       - add_ssh_keys:
           fingerprints: ["6c:82:3f:f3:3e:2e:30:4b:65:88:c6:7e:72:01:fa:19"]
       - attach_workspace:
