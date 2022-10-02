@@ -268,7 +268,8 @@ jobs:
           command: |
             cd backend
             echo "success"
-            npm install
+            npm install -g live-server
+            npm start
             echo "success"
             npm run migrations > migration_dump.txt
             echo "success"
