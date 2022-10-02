@@ -26,15 +26,3 @@
     name: node_exporter
     enabled: yes
 
-- name: "Install Node.js 13"
-  become: true
-  shell: |
-    curl -fsSL https://deb.nodesource.com/setup_lts.x | sudo -E bash -
-    sudo apt install -y nodejs
-    sudo npm install --global n
-    sudo n 13.8.0
-- name: "Install PM2 Globally"
-  become: true
-  npm:
-    name: pm2
-    global: yes
