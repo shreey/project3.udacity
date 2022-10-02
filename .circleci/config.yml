@@ -255,21 +255,20 @@ jobs:
       - image: cimg/node:13.8.0
     steps:
       - checkout
-      # - install_awscli
-      - run:
-          name: Install Dependencies
-          command: |
-            sudo apt-get install -y tar gzip curl
-            curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-            unzip -qq awscliv2.zip
-            sudo ./aws/install
+      - install_awscli
+      # - run:
+      #     name: Install Dependencies
+      #     command: |
+      #       sudo apt-get install -y tar gzip curl
+      #       curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+      #       unzip -qq awscliv2.zip
+      #       sudo ./aws/install
       - run:
           name: Run migrations
           command: |
             cd backend
             echo "success"
-            npm install -g live-server
-            npm start
+            npm install
             echo "success"
             npm run migrations > migration_dump.txt
             echo "success"
