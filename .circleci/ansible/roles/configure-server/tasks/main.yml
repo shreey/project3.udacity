@@ -1,57 +1,26 @@
-# ---
+---
 
-# - name:  "Add Node.js from source"
-#   become: true
-#   shell: |
-#     curl -sl https://deb.nodesource.com/setup_18.x | sudo -E bash -
-# - name: install node.js 18
-#   become: true
-#   apt:
-#     name: ["nodejs"]
-#     state: latest
-#     update_cache: yes
-
-# - name: install pm2
-#   become: true
-#   npm:
-#     name: pm2
-#     global: yes
-#     # state: latest
-#     # production: yes
-
-# - name:  "Move env variables to /etc/profile.d/"
-#   become: true
-#   copy:
-#     src: myenv.sh
-#     dest: /etc/profile.d/
-- name: "update apt packages"
+- name:  "Add Node.js from source"
   become: true
-  become_method: sudo
+  shell: |
+    curl -sl https://deb.nodesource.com/setup_17.x | sudo -E bash -
+- name: install node.js 17
+  become: true
   apt:
+    name: ["nodejs"]
+    state: latest
     update_cache: yes
 
-- name: "upgrade apt packages"
-  become: true
-  become_method: sudo
-  apt:
-    upgrade: "yes"
-
-- name: "Remove dependencies that are no longer required" 
-  become: true
-  apt:
-    autoremove: yes
-
-- name: "Install npm and node.js"
-  become: true
-  apt:
-    name: ["nodejs", "npm", "python3"]
-    state: latest
-    update_cache: yes 
-
-- name: "Install pm2"
+- name: install pm2
   become: true
   npm:
     name: pm2
     global: yes
-    production: yes
-    state: present
+    # state: latest
+    # production: yes
+
+- name:  "Move env variables to /etc/profile.d/"
+  become: true
+  copy:
+    src: myenv.sh
+    dest: /etc/profile.d/
