@@ -16,11 +16,11 @@
   npm:
     name: pm2
     global: yes
-    # state: latest
-    # production: yes
+    state: latest
+    production: yes
 
-- name:  "Move env variables to /etc/profile.d/"
-  become: true
-  copy:
-    src: myenv.sh
-    dest: /etc/profile.d/
+# - name:  "Move env variables to /etc/profile.d/"
+#   become: true
+#   copy:
+#     src: myenv.sh
+#     dest: /etc/profile.d/
