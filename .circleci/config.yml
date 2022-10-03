@@ -249,7 +249,7 @@ jobs:
   #         Workflow_ID: ${CIRCLE_WORKFLOW_ID:0:7}   
   #     # Here's where you will add some code to rollback on failure      
 
-configure-infrastructure:
+  configure-infrastructure:
     docker:
       - image: cimg/aws:2022.06
     # Docker image here that supports Ansible
