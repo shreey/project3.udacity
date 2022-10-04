@@ -36,7 +36,6 @@
       changed_when: false
   roles:
     - deploy
-    - configure-prometheus-node-exporter
 
 
 
