@@ -1,23 +1,79 @@
 ---
+  - name: "update apt packages."
+    become: yes
+    apt:
+      update_cache: yes
 
-- name:  "Add Node.js from source"
-  become: true
-  shell: |
-    curl -sl https://deb.nodesource.com/setup_18.x | sudo -E bash -
-- name: install node.js 18
-  become: true
-  apt:
-    name: ["nodejs"]
-    state: latest
-    update_cache: yes
+  - name: "upgrade packages"
+    become: yes
+    apt:
+      upgrade: yes
 
-- name: install pm2
-  become: true
-  npm:
-    name: pm2
-    global: yes
-    state: latest
-    production: yes
+  - name: "remove dependencies that are no longer required"
+    become: yes
+    apt:
+      autoremove: yes
+
+  - name: "install nodejs and npm"
+    become: yes
+    apt:
+      name: ["nodejs", "npm"]
+      state: latest
+      update_cache: yes
+
+  - name: "install n"
+    become: yes
+    npm:
+      name: n
+      global: yes
+      production: yes
+
+  - name: "install nodejs 13.8.0"
+    become: yes
+    shell: n 13.8.0
+
+  - name: "install pm2"
+    become: yes
+    npm:
+      name: pm2
+      global: yes
+      production: yes
+      state: present
+
+
+# ---
+# - name: "Install Node.js 13"
+#   become: true
+#   shell: |
+#     curl -fsSL https://deb.nodesource.com/setup_lts.x | sudo -E bash -
+#     sudo apt install -y nodejs
+#     sudo npm install --global n
+#     sudo n 13.8.0
+# - name: "Install PM2 Globally"
+#   npm:
+#     name: pm2
+#     global: yes
+
+# # ---
+
+# - name:  "Add Node.js from source"
+#   become: true
+#   shell: |
+#     curl -sl https://deb.nodesource.com/setup_18.x | sudo -E bash -
+# - name: install node.js 18
+#   become: true
+#   apt:
+#     name: ["nodejs"]
+#     state: latest
+#     update_cache: yes
+
+# - name: install pm2
+#   become: true
+#   npm:
+#     name: pm2
+#     global: yes
+#     state: latest
+#     production: yes
 
 # - name:  "Move env variables to /etc/profile.d/"
 #   become: true
