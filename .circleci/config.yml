@@ -336,44 +336,44 @@ jobs:
   #           ansible-playbook -i inventory.txt deploy-backend.yml
   #     - destroy_environment
   #     - revert-migrations
-  # deploy-backend:
-  #   docker:
-  #     - image: cimg/base:stable
-  #   steps:
-  #     - checkout
-  #     - install_awscli
-  #     - install_ansible
-  #     - install_nodejs
-  #     - add_ssh_keys:
-  #         fingerprints: [ "b1:24:8d:69:72:31:45:81:f4:8f:f2:36:a4:f7:61:4a" ]
-  #     - attach_workspace:
-  #         at: ~/
-  #     - restore_cache:
-  #         keys: [backend-deps]
-  #     - run:
-  #         name: Install dependencies
-  #         command: |
-  #           cd backend
-  #           npm install
-  #     - run:
-  #         name: Package Backend
-  #         command: |
-  #           cd backend
-  #           npm run build
-  #           tar -czf artifact.tar.gz dist/* package*
-  #           cd ..
-  #           cp -f backend/artifact.tar.gz .circleci/ansible/roles/deploy/files
-  #     - run:
-  #         name: Deploy backend
-  #         command: |
-  #           export TYPEORM_MIGRATIONS_DIR=./migrations
-  #           export TYPEORM_ENTITIES=./modules/domain/**/*.entity{.ts,.js}
-  #           export TYPEORM_MIGRATIONS=./migrations/*.ts
-  #           cd .circleci/ansible
-  #           cat inventory.txt
-  #           ansible-playbook -i inventory.txt deploy-backend.yml
-  #     - destroy_environment
-  #     - revert-migrations
+  deploy-backend:
+    docker:
+      - image: cimg/base:stable
+    steps:
+      - checkout
+      - install_awscli
+      - install_ansible
+      - install_nodejs
+      - add_ssh_keys:
+          fingerprints: [ "b1:24:8d:69:72:31:45:81:f4:8f:f2:36:a4:f7:61:4a" ]
+      - attach_workspace:
+          at: ~/
+      - restore_cache:
+          keys: [backend-deps]
+      - run:
+          name: Install dependencies
+          command: |
+            cd backend
+            npm install
+      - run:
+          name: Package Backend
+          command: |
+            cd backend
+            npm run build
+            tar -czf artifact.tar.gz dist/* package*
+            cd ..
+            cp -f backend/artifact.tar.gz .circleci/ansible/roles/deploy/files
+      - run:
+          name: Deploy backend
+          command: |
+            export TYPEORM_MIGRATIONS_DIR=./migrations
+            export TYPEORM_ENTITIES=./modules/domain/**/*.entity{.ts,.js}
+            export TYPEORM_MIGRATIONS=./migrations/*.ts
+            cd .circleci/ansible
+            cat inventory.txt
+            ansible-playbook -i inventory.txt deploy-backend.yml
+      - destroy_environment
+      - revert-migrations
   # deploy-frontend:
   #   docker:
   #     - image:  cimg/aws:2022.06
@@ -443,42 +443,42 @@ jobs:
       - destroy_environment
       - revert-migrations
 
-  deploy-backend:
-    docker:
-      - image: "python:3.7-alpine3.11"
-    steps:
-      - checkout
-      - add_ssh_keys:
-          fingerprints: [ "b1:24:8d:69:72:31:45:81:f4:8f:f2:36:a4:f7:61:4a" ]
-      - attach_workspace:
-          at: .circleci/ansible/
-      - run:
-          name: Install dependencies
-          command: |
-            apk add --update ansible
-            apk add --update tar
-            apk add --update gzip
-            apk add --update curl
-            apk add --update openssh-client
-            apk add --update rsync
-      - run:
-          name: Set Enviroment variables 
-          command: |
-            cd ./backend 
-            touch .env
+  # deploy-backend:
+  #   docker:
+  #     - image: "python:3.7-alpine3.11"
+  #   steps:
+  #     - checkout
+  #     - add_ssh_keys:
+  #         fingerprints: [ "b1:24:8d:69:72:31:45:81:f4:8f:f2:36:a4:f7:61:4a" ]
+  #     - attach_workspace:
+  #         at: .circleci/ansible/
+  #     - run:
+  #         name: Install dependencies
+  #         command: |
+  #           apk add --update ansible
+  #           apk add --update tar
+  #           apk add --update gzip
+  #           apk add --update curl
+  #           apk add --update openssh-client
+  #           apk add --update rsync
+  #     - run:
+  #         name: Set Enviroment variables 
+  #         command: |
+  #           cd ./backend 
+  #           touch .env
             
-            echo ENVIROMENT=$ENVIROMENT >> ./.env
-            echo TYPEORM_CONNECTION=$TYPEORM_CONNECTION >> ./.env
-            echo TYPEORM_MIGRATIONS_DIR=$TYPEORM_MIGRATIONS_DIR >> ./.env
-            echo TYPEORM_ENTITIES=$TYPEORM_ENTITIES >> ./.env
-            echo TYPEORM_MIGRATIONS=$TYPEORM_MIGRATIONS >> ./.env
-            echo TYPEORM_HOST=$TYPEORM_HOST >> ./.env
-            echo TYPEORM_PORT=$TYPEORM_PORT >> ./.env
-            echo TYPEORM_USERNAME=$TYPEORM_USERNAME >> ./.env
-            echo TYPEORM_PASSWORD=$TYPEORM_PASSWORD >> ./.env
-            echo TYPEORM_DATABASE=$TYPEORM_DATABASE >> ./.env
-            cd ../
-            tar -czvf /root/project/backend.tar.gz backend
+  #           echo ENVIROMENT=$ENVIROMENT >> ./.env
+  #           echo TYPEORM_CONNECTION=$TYPEORM_CONNECTION >> ./.env
+  #           echo TYPEORM_MIGRATIONS_DIR=$TYPEORM_MIGRATIONS_DIR >> ./.env
+  #           echo TYPEORM_ENTITIES=$TYPEORM_ENTITIES >> ./.env
+  #           echo TYPEORM_MIGRATIONS=$TYPEORM_MIGRATIONS >> ./.env
+  #           echo TYPEORM_HOST=$TYPEORM_HOST >> ./.env
+  #           echo TYPEORM_PORT=$TYPEORM_PORT >> ./.env
+  #           echo TYPEORM_USERNAME=$TYPEORM_USERNAME >> ./.env
+  #           echo TYPEORM_PASSWORD=$TYPEORM_PASSWORD >> ./.env
+  #           echo TYPEORM_DATABASE=$TYPEORM_DATABASE >> ./.env
+  #           cd ../
+  #           tar -czvf /root/project/backend.tar.gz backend
 
 
 
