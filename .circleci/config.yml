@@ -48,25 +48,6 @@ commands:
            aws s3 rm s3://udapeople-<<parameters.Workflow_ID>> --recursive || echo "failed to remove the s3 files"
            aws cloudformation delete-stack --stack-name "udapeople-frontend-${CIRCLE_WorkFlow_ID:0:7}" || echo "failed to remove the frontend stack"
            aws cloudformation delete-stack --stack-name "udapeople-backend-${CIRCLE_WorkFlow_ID:0:7}" || echo "failed to remove the backend stack"
-#   notify-on-failiar:
-#     steps:
-#       - slack/notify:
-#           event: fail
-#           channel: slack-notification
-#           template: basic_fail_1
-  
-#   destroy-environment:
-#     description: Destroy back-end and front-end cloudformation stacks given a workflow ID.
-#     parameters:
-#       # Add parameter here   
-#     steps:
-#       - run:
-#           name: Destroy environments
-#           when: on_fail
-#           command: |
-#             # Your code here
-#             exit 1
-
  
   revert-migrations:
     description: Revert the last migration if successfully run in the current workflow.
@@ -247,8 +228,6 @@ jobs:
             ansible-playbook -i inventory.txt configure-server.yml
       - destroy_environment:
           Workflow_ID: ${CIRCLE_WORKFLOW_ID:0:7}   
-      # Here's where you will add some code to rollback on failure      
-
 
   run-migrations:
     docker:
@@ -256,13 +235,6 @@ jobs:
     steps:
       - checkout
       - install_awscli
-      # - run:
-      #     name: Install Dependencies
-      #     command: |
-      #       sudo apt-get install -y tar gzip curl
-      #       curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-      #       unzip -qq awscliv2.zip
-      #       sudo ./aws/install
       - run:
           name: Run migrations
           command: |
@@ -288,54 +260,6 @@ jobs:
       - destroy_environment
       - revert-migrations
 
-  # deploy-backend:
-  #   docker:
-  #     - image: python:3.11-rc-alpine
-  #   steps:
-  #     - checkout
-  #     - add_ssh_keys:
-  #         fingerprints: [ 'aa:59:2c:fd:5c:7b:98:c4:32:fb:c9:94:94:35:4f:b1b1:24:8d:69:72:31:45:81:f4:8f:f2:36:a4:f7:61:4a' ]
-  #     - attach_workspace:
-  #         at: ~/
-  #     - run:
-  #         name: Install dependencies
-  #         command: |
-  #           apk add --update ansible
-  #           apk add --update tar gzip nodejs npm
-  #           apk add --update --no-cache python3 py3-pip
-  #           /usr/local/bin/python -m pip install --upgrade pip
-  #           pip install awscli
-  #     - run:
-  #         name: Configure Env File
-  #         command: |
-  #           echo NODE_ENV=production >> backend/.env
-  #           echo VERSION=1 >> backend/.env
-  #           echo TYPEORM_CONNECTION=postgres >> backend/.env
-  #           echo TYPEORM_MIGRATIONS_DIR=./src/migrations >> backend/.env
-  #           echo TYPEORM_ENTITIES=./src/modules/domain/**/*.entity.ts >> backend/.env
-  #           echo TYPEORM_MIGRATIONS=./src/migrations/*.ts >> backend/.env
-  #           echo TYPEORM_HOST=$TYPEORM_HOST >> "backend/.env"
-  #           echo TYPEORM_PORT=$TYPEORM_PORT >> "backend/.env"
-  #           echo TYPEORM_USERNAME=$TYPEORM_USERNAME >> "backend/.env"
-  #           echo TYPEORM_PASSWORD=$TYPEORM_PASSWORD >> "backend/.env"
-  #           echo TYPEORM_DATABASE=$TYPEORM_DATABASE >> "backend/.env"
-  #           cat backend/.env
-  #     - run:
-  #         name: Deploy backend
-  #         command: |
-  #           cd backend
-  #           npm i
-  #           npm run build
-  #           cd ..
-  #           tar -C backend -czvf artifact.tar.gz .
-  #           mkdir -p /root/project
-  #           mv artifact.tar.gz /root/project/artifact.tar.gz
-  #           cd .circleci/ansible
-  #           echo "Contents  of the inventory.txt file is -------"
-  #           cat inventory.txt
-  #           ansible-playbook -i inventory.txt deploy-backend.yml
-  #     - destroy_environment
-  #     - revert-migrations
   deploy-backend:
     docker:
       - image: cimg/base:stable
@@ -374,42 +298,7 @@ jobs:
             ansible-playbook -i inventory.txt deploy-backend.yml
       - destroy_environment
       - revert-migrations
-  # deploy-frontend:
-  #   docker:
-  #     - image:  cimg/aws:2022.06
-  #   steps:
-  #     - checkout
-  #     - attach_workspace:
-  #         at: ~/
-  #     - run:
-  #         name: Install dependencies
-  #         command: |
-  #           sudo apt update 
-  #           sudo apt upgrade 
-  #           sudo apt install python3 && sudo apt install ansible
-  #           sudo apt install nodejs
-  #     - run:
-  #         name: Get backend url
-  #         command: |
-  #           # your code here
-  #           BACKEND_PUBLIC_IP=$(aws ec2 describe-instances \
-  #             --filters "Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0:7}" \
-  #             --query 'Reservations[*].Instances[*].PublicIpAddress' \
-  #             --output text)
-  #           echo "API_URL=http://${BACKEND_PUBLIC_IP}:3030" >> frontend/.env
-  #           cat frontend/.env
-  #     - run:
-  #         name: Deploy frontend objects
-  #         command: |
-  #           cd frontend
-  #           npm install
-  #           npm run build
-  #           tar -czvf artifact-"${CIRCLE_WORKFLOW_ID:0:7}".tar.gz dist
-  #           aws s3 cp dist s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7} --recursive
-  #     # Here's where you will add some code to rollback on failure
-  #     - destroy_environment
-  #     - revert-migrations
-  ## Prepare the frontend code for distribution and deploy it.    
+
   deploy-frontend:
     docker:
       - image: cimg/base:stable
@@ -442,44 +331,6 @@ jobs:
             aws s3 cp dist s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7} --recursive
       - destroy_environment
       - revert-migrations
-
-  # deploy-backend:
-  #   docker:
-  #     - image: "python:3.7-alpine3.11"
-  #   steps:
-  #     - checkout
-  #     - add_ssh_keys:
-  #         fingerprints: [ "b1:24:8d:69:72:31:45:81:f4:8f:f2:36:a4:f7:61:4a" ]
-  #     - attach_workspace:
-  #         at: .circleci/ansible/
-  #     - run:
-  #         name: Install dependencies
-  #         command: |
-  #           apk add --update ansible
-  #           apk add --update tar
-  #           apk add --update gzip
-  #           apk add --update curl
-  #           apk add --update openssh-client
-  #           apk add --update rsync
-  #     - run:
-  #         name: Set Enviroment variables 
-  #         command: |
-  #           cd ./backend 
-  #           touch .env
-            
-  #           echo ENVIROMENT=$ENVIROMENT >> ./.env
-  #           echo TYPEORM_CONNECTION=$TYPEORM_CONNECTION >> ./.env
-  #           echo TYPEORM_MIGRATIONS_DIR=$TYPEORM_MIGRATIONS_DIR >> ./.env
-  #           echo TYPEORM_ENTITIES=$TYPEORM_ENTITIES >> ./.env
-  #           echo TYPEORM_MIGRATIONS=$TYPEORM_MIGRATIONS >> ./.env
-  #           echo TYPEORM_HOST=$TYPEORM_HOST >> ./.env
-  #           echo TYPEORM_PORT=$TYPEORM_PORT >> ./.env
-  #           echo TYPEORM_USERNAME=$TYPEORM_USERNAME >> ./.env
-  #           echo TYPEORM_PASSWORD=$TYPEORM_PASSWORD >> ./.env
-  #           echo TYPEORM_DATABASE=$TYPEORM_DATABASE >> ./.env
-  #           cd ../
-  #           tar -czvf /root/project/backend.tar.gz backend
-
 
 
   smoke-test:
