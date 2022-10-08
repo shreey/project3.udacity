@@ -201,11 +201,11 @@ Resources:
             FromPort: 5432
             ToPort: 5432
             CidrIp: 0.0.0.0/0
-          - IpProtocol: tcp                    # Open port 514 Sending Logs from a Linux Syslog Agent
+          - IpProtocol: tcp                   
             FromPort: 514
             ToPort: 514
             CidrIp: 0.0.0.0/0
-          - IpProtocol: tcp                    # Open port 6514 insecure logging port 6514
+          - IpProtocol: tcp                 
             FromPort: 6514
             ToPort: 6514
             CidrIp: 0.0.0.0/0
